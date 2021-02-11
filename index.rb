@@ -50,8 +50,18 @@ module Enumerable
     my_all_boolean
   end
 
-  def my_any?
+  def my_any?(*args)
     return false if length.zero?
+
+    if(args.length == 1) then
+      my_any_boolean = false
+      each do |i| 
+        if i.is_a? (args.first) then
+          my_any_boolean = true
+        end
+      end
+      return my_any_boolean
+    end
 
     my_any_boolean = false
 
@@ -81,7 +91,15 @@ module Enumerable
   end
 
   def my_count(*args)
-    return puts length if args.length.zero?
+    return puts length if (args.length.zero? && !block_given?)
+
+    if(args.length.zero? && block_given?) then 
+      my_count_counter = 0
+      self.each do |i|
+        my_count_counter += 1 if yield(i)
+      end
+      return my_count_counter
+    end
 
     my_parameter = args.first
     my_count_counter = 0
@@ -144,7 +162,3 @@ end
 
 # Testing all the codes,  ADD YOUR TESTS HERE
 the_best_array_in_the_world = [1, 2, 3, 4, 5]
-
-puts the_best_array_in_the_world.my_inject(3) { |sum, number| sum + number }
-puts the_best_array_in_the_world.inject(3) { |sum, number| sum + number }
-# puts the_best_array_in_the_world.all?(Integer)
