@@ -53,12 +53,10 @@ module Enumerable
   def my_any?(*args)
     return false if length.zero?
 
-    if(args.length == 1) then
+    if args.length == 1
       my_any_boolean = false
-      each do |i| 
-        if i.is_a? (args.first) then
-          my_any_boolean = true
-        end
+      each do |i|
+        my_any_boolean = true if i.is_a?(args.first)
       end
       return my_any_boolean
     end
@@ -90,12 +88,14 @@ module Enumerable
     my_none_boolean
   end
 
-  def my_count(*args)
-    return puts length if (args.length.zero? && !block_given?)
+  # rubocop:disable Metrics/CyclomaticComplexity
 
-    if(args.length.zero? && block_given?) then 
+  def my_count(*args)
+    return puts length if args.length.zero? && !block_given?
+
+    if block_given?
       my_count_counter = 0
-      self.each do |i|
+      each do |i|
         my_count_counter += 1 if yield(i)
       end
       return my_count_counter
@@ -108,6 +108,8 @@ module Enumerable
     end
     my_count_counter
   end
+
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def my_map_prock(block)
     my_array = []
@@ -159,6 +161,3 @@ module Enumerable
     my_array.my_inject { |a, b| a * b }
   end
 end
-
-# Testing all the codes,  ADD YOUR TESTS HERE
-the_best_array_in_the_world = [1, 2, 3, 4, 5]

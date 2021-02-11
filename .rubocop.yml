@@ -13,6 +13,8 @@ Metrics/AbcSize:
   Max: 50
 Metrics/ClassLength:
   Max: 150
+Metrics/ModuleLength:
+  Max: 1000
 Metrics/BlockLength:
   ExcludedMethods: ['describe']
   Max: 30
