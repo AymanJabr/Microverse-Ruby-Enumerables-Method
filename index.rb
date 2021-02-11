@@ -88,8 +88,6 @@ module Enumerable
     my_none_boolean
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-
   def my_count(*args)
     return puts length if args.length.zero? && !block_given?
 
@@ -108,8 +106,6 @@ module Enumerable
     end
     my_count_counter
   end
-
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   def my_map_prock(block)
     my_array = []
