@@ -6,29 +6,48 @@ module Enumerable
   end
 
   def my_each_with_index
+    return to_enum(:my_each_with_index) unless block_given?
+
     each do |i|
       yield(i, find_index(i))
     end
   end
 
   def my_select
+    return to_enum(:my_select) unless block_given?
+
     my_array = []
 
     each do |i|
       my_array << i if yield(i)
     end
 
-    puts my_array
+    my_array
   end
 
-  def my_all?
+  # def my_all_with_arugments?(arguments)
+  #   my_all_boolean = true
+  #   arguments.each do |i|
+  #     my_all_boolean
+
+  # end
+
+  def my_all?(*args)
     return true if length.zero?
+
+    if args.length == 1
+      my_all_boolean = true
+      each do |i|
+        my_all_boolean = false unless i.is_a?(args.first)
+      end
+      return my_all_boolean
+    end
 
     my_all_boolean = true
     each do |i|
       my_all_boolean = false unless yield(i)
     end
-    puts my_all_boolean
+    my_all_boolean
   end
 
   def my_any?
@@ -39,17 +58,26 @@ module Enumerable
     each do |i|
       my_any_boolean = true if yield(i)
     end
-    puts my_any_boolean
+    my_any_boolean
   end
 
-  def my_none?
+  def my_none?(*args)
     return true if length.zero?
+
+    if args.length == 1
+      my_none_boolean = true
+      each do |i|
+        my_none_boolean = false if i.is_a?(args.first)
+      end
+      return my_none_boolean
+
+    end
 
     my_none_boolean = true
     each do |i|
       my_none_boolean = false if yield(i)
     end
-    puts my_none_boolean
+    my_none_boolean
   end
 
   def my_count(*args)
@@ -60,7 +88,7 @@ module Enumerable
     each do |i|
       my_count_counter += 1 if i == my_parameter
     end
-    puts my_count_counter
+    my_count_counter
   end
 
   def my_map_prock(block)
@@ -87,7 +115,17 @@ module Enumerable
     my_array
   end
 
-  def my_inject
+  def my_inject(*args)
+    if args.length == 1
+      my_aggregator = args.first
+
+      each do |i|
+        my_aggregator = yield(my_aggregator, i)
+      end
+
+      return my_aggregator
+    end
+
     my_aggregator = first
 
     each do |i|
@@ -96,7 +134,7 @@ module Enumerable
       my_aggregator = yield(my_aggregator, i)
     end
 
-    puts my_aggregator
+    my_aggregator
   end
 
   def self.multiply_els(my_array)
@@ -105,19 +143,8 @@ module Enumerable
 end
 
 # Testing all the codes,  ADD YOUR TESTS HERE
-[1, 2, 3].my_each { |n| puts n * 3 }
-[1, 2, 3].my_each_with_index { |number, index| puts "the number: #{number}, has index: #{index}" }
-[1, 2, 3, 4].my_select(&:even?)
-[0, 2, 4, 8].my_all?(&:even?)
-[1, 3, 5, 7].my_any?(&:even?)
-[1, 3, 5, 7].my_none?(&:even?)
-[1, 3, 5, 7, 1, nil, 5, 7, 1, nil, 5, 7].my_count
-[1, 3, 5, 7, 1, nil, 5, 7, 1, nil, 5, 7].my_count(1)
-some_new_array = [1, 3, 4, 8].my_map { |n| n * 3 }
-some_other_new_array = [1, 3, 4, 8].my_each { |n| n * 3 }
-puts some_new_array
-puts some_other_new_array
-[1, 3, 5, 7].my_inject { |a, b| a + b }
-Enumerable.multiply_els([1, 3, 4, 7, 8, 12])
-movie = proc { |i| i + 4 }
-puts [2, 3, 5, 6, 8].my_map(movie)
+the_best_array_in_the_world = [1, 2, 3, 4, 5]
+
+puts the_best_array_in_the_world.my_inject(3) { |sum, number| sum + number }
+puts the_best_array_in_the_world.inject(3) { |sum, number| sum + number }
+# puts the_best_array_in_the_world.all?(Integer)
