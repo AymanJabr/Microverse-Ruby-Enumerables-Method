@@ -70,7 +70,7 @@ module Enumerable
 
       my_any_boolean = false
       each do |i|
-        my_any_boolean = true if i == (args.first)
+        my_any_boolean = true if i == args.first
       end
       return my_any_boolean
     end
