@@ -24,8 +24,6 @@ module Enumerable
   end
 
   def my_all?(*args)
-    # ['car', 'cat'].all?(/a/) == ['car', 'cat'].my_all?(/a/)
-
     if args.length == 1 && args.first.instance_of?(Regexp)
       my_all_boolean = true
       each do |i|
@@ -37,7 +35,7 @@ module Enumerable
     if args.length == 1
       my_all_boolean = true
       each do |i|
-        my_all_boolean = false unless i.is_a?(args.first.class)
+        my_all_boolean = false unless i.class.is_a?(args.first.class)
       end
       return my_all_boolean
     end
@@ -64,6 +62,16 @@ module Enumerable
         my_any_boolean = false
         each do |i|
           my_any_boolean = true if args.first.match(i)
+        end
+        return my_any_boolean
+      end
+
+      if args.first.instance_of?(Class)
+        my_any_boolean = false
+        each do |i|
+          # puts i.class.is_a?(args.first)
+          # puts args.first
+          my_any_boolean = true if i.class.is_a?(args.first.class)
         end
         return my_any_boolean
       end
@@ -156,8 +164,6 @@ module Enumerable
   def my_map_prock(block)
     my_array = []
 
-    # Replace the .each with my_each
-
     each do |i|
       my_array.push(block.call(i))
     end
@@ -210,9 +216,20 @@ module Enumerable
     my_aggregator
   end
 
-  def self.multiply_els(my_array)
-    my_array.my_inject { |a, b| a * b }
+  def multiply_els()
+    my_inject { |a, b| a * b }
   end
 end
 
-puts %w[dog cat].none?(/x/) == %w[dog cat].my_none?(/x/)
+# array = [1,2,3,4,5]
+# numbers = array
+# operation = Proc.new {|n| n + 1}
+
+# puts array.my_all?(Integer) ==  array.all?(Integer)
+# puts numbers.my_all?(Numeric) == numbers.all?(Numeric)
+# puts array.my_all?(3) == array.all?(3)
+# puts array.my_any?(Numeric) == array.any?(Numeric)
+# puts array.my_inject(&operation) == array.inject(&operation)
+# puts array.my_inject(:+) == array.inject(:+)
+# puts array.multiply_els()
+# puts "fix multiply_els to be just a method"
