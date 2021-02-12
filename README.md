@@ -2,6 +2,8 @@
 
 In this project I re-made some of the most used Ruby Enumerable classes:
 
+![Screenshot-of-code](./assets/Screenshot.JPG)
+
 1. my_each for each
 2. my_select for select
 3. my_all? for all?

@@ -1,5 +1,3 @@
-# Search "ruby understanding self and main"
-
 module Enumerable
   def my_each(&block)
     each(&block)
@@ -25,20 +23,29 @@ module Enumerable
     my_array
   end
 
-  # def my_all_with_arugments?(arguments)
-  #   my_all_boolean = true
-  #   arguments.each do |i|
-  #     my_all_boolean
-
-  # end
-
   def my_all?(*args)
-    return true if length.zero?
+    # ['car', 'cat'].all?(/a/) == ['car', 'cat'].my_all?(/a/)
+
+    if args.length == 1 && args.first.instance_of?(Regexp)
+      my_all_boolean = true
+      each do |i|
+        my_all_boolean = false unless args.first.match(i)
+      end
+      return my_all_boolean
+    end
 
     if args.length == 1
       my_all_boolean = true
       each do |i|
-        my_all_boolean = false unless i.is_a?(args.first)
+        my_all_boolean = false unless i.is_a?(args.first.class)
+      end
+      return my_all_boolean
+    end
+
+    unless block_given?
+      my_all_boolean = true
+      each do |i|
+        my_all_boolean = false unless i
       end
       return my_all_boolean
     end
@@ -51,18 +58,30 @@ module Enumerable
   end
 
   def my_any?(*args)
-    return false if length.zero?
+    if args.length == 1 && !block_given?
 
-    if args.length == 1
+      if args.first.instance_of?(Regexp)
+        my_any_boolean = false
+        each do |i|
+          my_any_boolean = true if args.first.match(i)
+        end
+        return my_any_boolean
+      end
+
       my_any_boolean = false
       each do |i|
-        my_any_boolean = true if i.is_a?(args.first)
+        my_any_boolean = true if i == (args.first)
       end
       return my_any_boolean
     end
-
+    unless block_given?
+      my_any_boolean = false
+      each do |i|
+        my_any_boolean = true if i
+      end
+      return my_any_boolean
+    end
     my_any_boolean = false
-
     each do |i|
       my_any_boolean = true if yield(i)
     end
@@ -70,7 +89,30 @@ module Enumerable
   end
 
   def my_none?(*args)
-    return true if length.zero?
+    if args.length == 1 && !block_given?
+
+      if args.first.instance_of?(Regexp)
+        my_none_boolean = true
+        each do |i|
+          my_none_boolean = false if args.first.match(i)
+        end
+        return my_none_boolean
+      end
+
+      my_none_boolean = true
+      each do |i|
+        my_none_boolean = false if i == args.first
+      end
+      return my_none_boolean
+    end
+
+    unless block_given?
+      my_none_boolean = true
+      each do |i|
+        my_none_boolean = false if i
+      end
+      return my_none_boolean
+    end
 
     if args.length == 1
       my_none_boolean = true
@@ -89,7 +131,11 @@ module Enumerable
   end
 
   def my_count(*args)
-    return puts length if args.length.zero? && !block_given?
+    if args.length.zero? && !block_given?
+      return size if is_a? Range
+
+      return length
+    end
 
     if block_given?
       my_count_counter = 0
@@ -119,11 +165,10 @@ module Enumerable
   end
 
   def my_map(block = nil)
+    return to_enum(:my_map) unless block_given?
     return my_map_prock(block) unless block.nil?
 
     my_array = []
-
-    # Replace the .each with my_each
 
     each do |i|
       my_array.push(yield(i))
@@ -132,6 +177,18 @@ module Enumerable
   end
 
   def my_inject(*args)
+    return my_inject { |n, i| n.send(args.first, i) } if args.length == 1 && !block_given?
+
+    if args.length == 2 && !block_given?
+      my_aggregator = args.first
+
+      each do |i|
+        my_aggregator = my_aggregator.send(args[1], i)
+      end
+
+      return my_aggregator
+    end
+
     if args.length == 1
       my_aggregator = args.first
 
@@ -157,3 +214,5 @@ module Enumerable
     my_array.my_inject { |a, b| a * b }
   end
 end
+
+puts %w[dog cat].none?(/x/) == %w[dog cat].my_none?(/x/)
