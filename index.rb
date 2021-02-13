@@ -1,18 +1,13 @@
 module Enumerable
-  def my_each(argument = nil)
+  def my_each
     return to_enum(:my_each) unless block_given?
 
-    if block_given?
-      each do |i|
-        if !argument.nil?
-          argument.call(i)
-        else
-          yield(i)
-        end
-      end
-    else
-      self
+    k = 0
+    while k < to_a.length
+      yield to_a[k]
+      k += 1
     end
+    self
   end
 
   def my_each_with_index(_argument = nil)
@@ -167,6 +162,8 @@ module Enumerable
   end
 
   def my_inject(arg = nil, sym = nil)
+    return to_enum(:my_each) unless block_given?
+
     if (arg.is_a?(String) || arg.is_a?(Symbol)) && (!arg.nil? && sym.nil?)
       sym = arg
       arg = nil
