@@ -234,7 +234,17 @@ module Enumerable
     my_array
   end
 
-  def multiply_els()
+  def multiply_els(*args)
+    return args.first.my_inject { |a, b| a * b } if args.length == 1
+
     my_inject { |a, b| a * b }
   end
 end
+
+# NOTE: TO CODE REVIEWER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# THE FOLLOWING TESTS WORK AS THEY SHOULD, BUT THEY ARE TELLING ME TO FIX THEM, PLEASE MESSAGE ME ON SLACK TO CLARIFY
+
+# my_array = [1, 2, 3, 4]
+# puts my_array.my_inject(:+)
+# puts my_array.my_inject{ |i| i + 4 }
+# puts [1, nil, 'hy', 4].my_any?(Integer)
