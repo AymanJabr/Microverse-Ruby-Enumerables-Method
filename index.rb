@@ -162,8 +162,6 @@ module Enumerable
   end
 
   def my_inject(arg = nil, sym = nil)
-    return to_enum(:my_each) unless block_given?
-
     if (arg.is_a?(String) || arg.is_a?(Symbol)) && (!arg.nil? && sym.nil?)
       sym = arg
       arg = nil
