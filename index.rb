@@ -18,9 +18,11 @@ module Enumerable
   def my_each_with_index(_argument = nil)
     return to_enum(:my_each_with_index) unless block_given?
 
-    each do |i|
-      yield(i, find_index(i))
-    end
+    if block_given?
+      0.upto(size - 1) do |i|
+        yield(to_a[i], i)
+      end
+    end; self
   end
 
   def my_select
@@ -164,38 +166,18 @@ module Enumerable
     my_none_boolean
   end
 
-  def my_inject(*args)
-    return my_inject { |n, i| n.send(args.first, i) } if args.length == 1 && !block_given?
-
-    if args.length == 2 && !block_given?
-      my_aggregator = args.first
-
-      each do |i|
-        my_aggregator = my_aggregator.send(args[1], i)
-      end
-
-      return my_aggregator
+  def my_inject(memo = nil, sym = nil, &block)
+    memo = memo.to_sym if memo.is_a?(String) && !sym && !block
+    if memo.is_a?(Symbol) && !sym
+      block = memo.to_proc
+      memo = nil
     end
+    sym = sym.to_sym if sym.is_a?(String)
+    block = sym.to_proc if sym.is_a?(Symbol)
 
-    if args.length == 1
-      my_aggregator = args.first
-
-      each do |i|
-        my_aggregator = yield(my_aggregator, i)
-      end
-
-      return my_aggregator
-    end
-
-    my_aggregator = first
-
-    each do |i|
-      next if i == first
-
-      my_aggregator = yield(my_aggregator, i)
-    end
-
-    my_aggregator
+    # Ready to rock & roll
+    each { |x| memo = memo.nil? ? x : block.yield(memo, x) }
+    memo
   end
 
   # rubocop:enable Metrics/MethodLength
@@ -250,9 +232,3 @@ def multiply_els(*args)
 
   my_inject { |a, b| a * b }
 end
-
-# FOR CODE REVIEWER!!!!!!!!!!!!!!!!!!!
-
-# PLEASE LOOK AT THESE TESTS BEFORE SENDING BACK THAT MY_INJECT DOESN'T WORK
-# puts [1,2,3,4,5].my_inject{ |sum, n| sum + n }
-# puts [1,2,3,4,5].my_inject(:+)
