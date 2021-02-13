@@ -166,18 +166,17 @@ module Enumerable
     my_none_boolean
   end
 
-  def my_inject(memo = nil, sym = nil, &block)
-    memo = memo.to_sym if memo.is_a?(String) && !sym && !block
-    if memo.is_a?(Symbol) && !sym
-      block = memo.to_proc
-      memo = nil
+  def my_inject(arg = nil, sym = nil)
+    if (arg.is_a?(String) || arg.is_a?(Symbol)) && (!arg.nil? && sym.nil?)
+      sym = arg
+      arg = nil
     end
-    sym = sym.to_sym if sym.is_a?(String)
-    block = sym.to_proc if sym.is_a?(Symbol)
-
-    # Ready to rock & roll
-    each { |x| memo = memo.nil? ? x : block.yield(memo, x) }
-    memo
+    if !block_given? && !sym.nil?
+      my_each { |s| arg = arg.nil? ? s : arg.send(sym, s) }
+    else
+      my_each { |s| arg = arg.nil? ? s : yield(arg, s) }
+    end
+    arg
   end
 
   # rubocop:enable Metrics/MethodLength
