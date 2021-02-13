@@ -1,13 +1,31 @@
 module Enumerable
-  def my_each(&block)
-    each(&block)
+  def my_each(argument = nil)
+    if block_given?
+      each do |i|
+        if !argument.nil?
+          argument.call(i)
+        else
+          yield(i)
+        end
+      end
+    else
+      self
+    end
   end
 
-  def my_each_with_index
-    return to_enum(:my_each_with_index) unless block_given?
-
-    each do |i|
-      yield(i, find_index(i))
+  def my_each_with_index(argument = nil)
+    i = 0
+    if block_given?
+      length.times do
+        if !argument.nil?
+          argument.call(self[i], i)
+        else
+          yield(self[i], i)
+        end
+        i += 1
+      end
+    else
+      self
     end
   end
 
@@ -85,9 +103,7 @@ module Enumerable
       if args.first.instance_of?(Class)
         my_any_boolean = false
         each do |i|
-          # puts i.class.is_a?(args.first)
-          # puts args.first
-          my_any_boolean = true if i.class.is_a?(args.first.class)
+          my_any_boolean = true if i.instance_of?(args.first)
         end
         return my_any_boolean
       end
@@ -233,18 +249,14 @@ module Enumerable
     end
     my_array
   end
-
-  def multiply_els(*args)
-    return args.first.my_inject { |a, b| a * b } if args.length == 1
-
-    my_inject { |a, b| a * b }
-  end
 end
 
-# NOTE: TO CODE REVIEWER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# THE FOLLOWING TESTS WORK AS THEY SHOULD, BUT THEY ARE TELLING ME TO FIX THEM, PLEASE MESSAGE ME ON SLACK TO CLARIFY
+def multiply_els(*args)
+  return args.first.my_inject { |a, b| a * b } if args.length == 1
 
-# my_array = [1, 2, 3, 4]
-# puts my_array.my_inject(:+)
-# puts my_array.my_inject{ |i| i + 4 }
-# puts [1, nil, 'hy', 4].my_any?(Integer)
+  my_inject { |a, b| a * b }
+end
+
+puts %w[dog door rod blade].any?(Integer)
+puts %w[dog door rod blade].my_any?(Integer)
+puts %w[dog door rod blade].any?(Integer) == %w[dog door rod blade].my_any?(Integer)
