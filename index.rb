@@ -23,7 +23,10 @@ module Enumerable
     my_array
   end
 
+  # rubocop:disable Metrics/MethodLength
+
   def my_all?(*args)
+    # Checks for Regexp
     if args.length == 1 && args.first.instance_of?(Regexp)
       my_all_boolean = true
       each do |i|
@@ -31,15 +34,27 @@ module Enumerable
       end
       return my_all_boolean
     end
-
+    # Checks for Class type and for a specific character
     if args.length == 1
+
+      # If we passed in a class
+      if args.first.is_a?(Class)
+        my_all_boolean = true
+        each do |i|
+          my_all_boolean = false unless i.is_a?(args.first)
+        end
+        return my_all_boolean
+      end
+
+      # If just a specific character is given
       my_all_boolean = true
       each do |i|
-        my_all_boolean = false unless i.class.is_a?(args.first.class)
+        my_all_boolean = false unless i == args.first
       end
       return my_all_boolean
     end
 
+    # Checks for when a block is not given
     unless block_given?
       my_all_boolean = true
       each do |i|
@@ -48,6 +63,7 @@ module Enumerable
       return my_all_boolean
     end
 
+    # If a block is given
     my_all_boolean = true
     each do |i|
       my_all_boolean = false unless yield(i)
@@ -138,6 +154,42 @@ module Enumerable
     my_none_boolean
   end
 
+  def my_inject(*args)
+    return my_inject { |n, i| n.send(args.first, i) } if args.length == 1 && !block_given?
+
+    if args.length == 2 && !block_given?
+      my_aggregator = args.first
+
+      each do |i|
+        my_aggregator = my_aggregator.send(args[1], i)
+      end
+
+      return my_aggregator
+    end
+
+    if args.length == 1
+      my_aggregator = args.first
+
+      each do |i|
+        my_aggregator = yield(my_aggregator, i)
+      end
+
+      return my_aggregator
+    end
+
+    my_aggregator = first
+
+    each do |i|
+      next if i == first
+
+      my_aggregator = yield(my_aggregator, i)
+    end
+
+    my_aggregator
+  end
+
+  # rubocop:enable Metrics/MethodLength
+
   def my_count(*args)
     if args.length.zero? && !block_given?
       return size if is_a? Range
@@ -182,54 +234,7 @@ module Enumerable
     my_array
   end
 
-  def my_inject(*args)
-    return my_inject { |n, i| n.send(args.first, i) } if args.length == 1 && !block_given?
-
-    if args.length == 2 && !block_given?
-      my_aggregator = args.first
-
-      each do |i|
-        my_aggregator = my_aggregator.send(args[1], i)
-      end
-
-      return my_aggregator
-    end
-
-    if args.length == 1
-      my_aggregator = args.first
-
-      each do |i|
-        my_aggregator = yield(my_aggregator, i)
-      end
-
-      return my_aggregator
-    end
-
-    my_aggregator = first
-
-    each do |i|
-      next if i == first
-
-      my_aggregator = yield(my_aggregator, i)
-    end
-
-    my_aggregator
-  end
-
   def multiply_els()
     my_inject { |a, b| a * b }
   end
 end
-
-# array = [1,2,3,4,5]
-# numbers = array
-# operation = Proc.new {|n| n + 1}
-
-# puts array.my_all?(Integer) ==  array.all?(Integer)
-# puts numbers.my_all?(Numeric) == numbers.all?(Numeric)
-# puts array.my_all?(3) == array.all?(3)
-# puts array.my_any?(Numeric) == array.any?(Numeric)
-# puts array.my_inject(&operation) == array.inject(&operation)
-# puts array.my_inject(:+) == array.inject(:+)
-# puts array.multiply_els()
-# puts "fix multiply_els to be just a method"
