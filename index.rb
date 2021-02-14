@@ -1,160 +1,228 @@
- #Search "ruby understanding self and main"
- 
- 
- 
- module Enumerable
+module Enumerable
   def my_each
-  
-    for i in self 
-       yield(i)
-    end
+    return to_enum(:my_each) unless block_given?
 
+    k = 0
+    while k < to_a.length
+      yield to_a[k]
+      k += 1
+    end
+    self
   end
 
-  def my_each_with_index
-  
-    for i in self
-      yield(i, self.find_index(i))
-    end
+  def my_each_with_index(_argument = nil)
+    return to_enum(:my_each_with_index) unless block_given?
 
+    if block_given?
+      0.upto(size - 1) do |i|
+        yield(to_a[i], i)
+      end
+    end; self
   end
 
   def my_select
+    return to_enum(:my_select) unless block_given?
 
     my_array = []
 
-    for i in self
-      if yield(i)
-        my_array << i
-      end
+    each do |i|
+      my_array << i if yield(i)
     end
 
-    puts my_array
-
+    my_array
   end
 
-  def my_all?
-    if self.length == 0 then
-      return true
+  # rubocop:disable Metrics/MethodLength
+
+  def my_all?(*args)
+    # Checks for Regexp
+    if args.length == 1 && args.first.instance_of?(Regexp)
+      my_all_boolean = true
+      each do |i|
+        my_all_boolean = false unless args.first.match(i)
+      end
+      return my_all_boolean
     end
+    # Checks for Class type and for a specific character
+    if args.length == 1
+
+      # If we passed in a class
+      if args.first.is_a?(Class)
+        my_all_boolean = true
+        each do |i|
+          my_all_boolean = false unless i.is_a?(args.first)
+        end
+        return my_all_boolean
+      end
+
+      # If just a specific character is given
+      my_all_boolean = true
+      each do |i|
+        my_all_boolean = false unless i == args.first
+      end
+      return my_all_boolean
+    end
+
+    # Checks for when a block is not given
+    unless block_given?
+      my_all_boolean = true
+      each do |i|
+        my_all_boolean = false unless i
+      end
+      return my_all_boolean
+    end
+
+    # If a block is given
     my_all_boolean = true
-    for i in self
-
-      if !yield(i)
-        my_all_boolean = false
-      end
-
+    each do |i|
+      my_all_boolean = false unless yield(i)
     end
-    puts my_all_boolean
+    my_all_boolean
   end
 
-  def my_any?
-    if self.length == 0 then
-      return false
+  def my_any?(*args)
+    if args.length == 1 && !block_given?
+
+      if args.first.instance_of?(Regexp)
+        my_any_boolean = false
+        each do |i|
+          my_any_boolean = true if args.first.match(i)
+        end
+        return my_any_boolean
+      end
+
+      if args.first.instance_of?(Class)
+        my_any_boolean = false
+        each do |i|
+          my_any_boolean = true if i.is_a?(args.first)
+        end
+        return my_any_boolean
+      end
+
+      my_any_boolean = false
+      each do |i|
+        my_any_boolean = true if i == args.first
+      end
+      return my_any_boolean
+    end
+    unless block_given?
+      my_any_boolean = false
+      each do |i|
+        my_any_boolean = true if i
+      end
+      return my_any_boolean
     end
     my_any_boolean = false
-
-    for i in self
-
-      if yield(i)
-        my_any_boolean = true
-      end
-
+    each do |i|
+      my_any_boolean = true if yield(i)
     end
-    puts my_any_boolean
+    my_any_boolean
   end
 
-  def my_none?
-    if self.length == 0 then
-      return true
+  def my_none?(*args)
+    if args.length == 1 && !block_given?
+
+      if args.first.instance_of?(Regexp)
+        my_none_boolean = true
+        each do |i|
+          my_none_boolean = false if args.first.match(i)
+        end
+        return my_none_boolean
+      end
+
+      my_none_boolean = true
+      each do |i|
+        my_none_boolean = false if i == args.first
+      end
+      return my_none_boolean
     end
+
+    unless block_given?
+      my_none_boolean = true
+      each do |i|
+        my_none_boolean = false if i
+      end
+      return my_none_boolean
+    end
+
+    if args.length == 1
+      my_none_boolean = true
+      each do |i|
+        my_none_boolean = false if i.is_a?(args.first)
+      end
+      return my_none_boolean
+
+    end
+
     my_none_boolean = true
-    for i in self
-
-      if yield(i)
-        my_none_boolean = false
-      end
-
+    each do |i|
+      my_none_boolean = false if yield(i)
     end
-    puts my_none_boolean
+    my_none_boolean
   end
 
+  def my_inject(arg = nil, sym = nil)
+    if (arg.is_a?(String) || arg.is_a?(Symbol)) && (!arg.nil? && sym.nil?)
+      sym = arg
+      arg = nil
+    end
+    if !block_given? && !sym.nil?
+      my_each { |s| arg = arg.nil? ? s : arg.send(sym, s) }
+    else
+      my_each { |s| arg = arg.nil? ? s : yield(arg, s) }
+    end
+    arg
+  end
+
+  # rubocop:enable Metrics/MethodLength
 
   def my_count(*args)
-    if args.length == 0 then
-      return puts self.length
+    if args.length.zero? && !block_given?
+      return size if is_a? Range
+
+      return length
+    end
+
+    if block_given?
+      my_count_counter = 0
+      each do |i|
+        my_count_counter += 1 if yield(i)
+      end
+      return my_count_counter
     end
 
     my_parameter = args.first
     my_count_counter = 0
-    for i in self
-      if(i == my_parameter) then
-        my_count_counter += 1
-      end
+    each do |i|
+      my_count_counter += 1 if i == my_parameter
     end
-    puts my_count_counter
+    my_count_counter
   end
 
-  def my_map
+  def my_map_prock(block)
+    my_array = []
+
+    each do |i|
+      my_array.push(block.call(i))
+    end
+    my_array
+  end
+
+  def my_map(block = nil)
+    return to_enum(:my_map) unless block_given?
+    return my_map_prock(block) unless block.nil?
 
     my_array = []
-    
-    #Replace the .each with my_each
 
-    for i in self
+    each do |i|
       my_array.push(yield(i))
     end
     my_array
-
   end
-
-
-  def my_inject
-
-    my_aggregator = self.first
-    
-    for i in self do
-      if i == self.first then
-        next
-      end
-      my_aggregator = yield(my_aggregator, i)
-    end
-
-    puts my_aggregator
-
-  end
-
-  def self.multiply_els(my_array)
-
-    my_array.my_inject {|a,b| a * b}
-  end
-
-
 end
 
+def multiply_els(*args)
+  return args.first.my_inject { |a, b| a * b } if args.length == 1
 
-#Testing all the codes,  ADD YOUR TESTS HERE
-[1,2,3].my_each { |n| puts n * 3}
-[1,2,3].my_each_with_index { |number, index| puts "the number: #{number}, has index: #{index}"}
-[1,2,3,4].my_select { |n| n.even?}
-[0,2,4,8].my_all? {|n| n.even?}
-[1,3,5,7].my_any? {|n| n.even?}
-[1,3,5,7].my_none? {|n| n.even?}
-[1,3,5,7,1,nil,5,7,1,nil,5,7].my_count
-[1,3,5,7,1,nil,5,7,1,nil,5,7].my_count(1)
-some_new_array = [1,3,4,8].my_map { |n| n * 3}
-some_other_new_array = [1,3,4,8].my_each {|n| n  * 3}
-puts some_new_array
-puts some_other_new_array
-[1,3,5,7].my_inject { |a,b| a + b}
-
-
-movie = Proc.new {return "something"}
-puts movie.call
-
-Enumerable.multiply_els([1,3,4,7,8,12])
-
-
-  # https://medium.com/rubycademy/the-yield-keyword-603a850b8921
-
-  # https://jsonmattingly.medium.com/writing-your-own-enumerables-in-ruby-18db4fa0e5fe
+  my_inject { |a, b| a * b }
+end
