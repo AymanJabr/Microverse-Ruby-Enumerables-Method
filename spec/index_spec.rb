@@ -3,16 +3,7 @@ require_relative "../index.rb"
 include Enumerable
 
 RSpec.describe Enumerable do
-    # describe "#my_each" do
-    #     it "" do
-        
-    #     end
-    # end
-    # describe "#my_each_with_index" do
-    #     it "" do
-        
-    #     end
-    # end
+    
     describe "#my_select" do
         it "Returns just the even numers of the array" do
             expect([1,2,3,4,5].my_select{|num| num.even?}).to eql([2,4])
@@ -65,6 +56,12 @@ RSpec.describe Enumerable do
         it "Returns false if none of the words have a lenght greater than or equal to 4" do
             expect(%w[ant bear car].my_none?{|word| word.length >= 4}).to eql(false)
         end
+    end
+
+    describe "#my_each" do
+        it "Returns every value according to the yield" do
+            expect([1,2,3,4].my_each { |x| "The number is #{x}" }).to eql([1,2,3,4].each { |x| "The number is #{x}" })
+        end
         it "Returns true if none of the words have a d in them" do
             expect(%w[ant bear car].my_none?(/d/)).to eql(true)
         end
@@ -97,27 +94,44 @@ RSpec.describe Enumerable do
         it "Multiply the inputted Range of numbers, and use 1 as begginning value, using block" do
             expect((5..10).my_inject(1){|product,n| product*n}).to eql(151200)
         end
+    end
+
+    describe "#my_each_with_index" do
+        it "" do
+            expect([1,2,3,4].my_each_with_index { |val, index| "index: #{index} for #{val}" }).to eql([1,2,3,4].each_with_index { |val, index| "index: #{index} for #{val}" })
+        end
+    end
+
+    describe "#my_count" do
+        it "Returns the amount of values in the array" do
+            expect([1,2,3,4].my_count).to eql([1,2,3,4].count)
+        end
+
+        it "Returns the amount of values that match the argument" do
+            expect([1,2,3,2].count(2)).to eql([1,2,3,2].count(2))
+        end
+
+        it "Returns the amount of values that match the yield" do
+            expect([1,2,3,2].my_count { |x| x%2 == 0 }).to eql([1,2,3,2].count { |x| x%2 == 0 })
+        end
+    end
+
+    describe "#my_map" do
+        it "Returns the array adding the value of the yield" do
+            expect([1,2,3,4].my_map { |i| i*i }).to eql([1,2,3,4].map { |i| i*i })
+        end
+    end
+
+    describe "#multiply_els" do
+        it "Returns the multiplication of all elements like in my_inject" do
+            expect(multiply_els([1,2,3,4])).to eql([1,2,3,4].inject { |a, b| a * b })
+        end
         it "Output the largest word" do
             expect( %w{ cat sheep bear}.my_inject { |memo,word| memo.length > word.length ? memo : word}).to eql("sheep")
         end
         
         
     end
-    # describe "#my_count" do
-    #     it "" do
-        
-    #     end
-    # end
-    # describe "#my_map" do
-    #     it "" do
-        
-    #     end
-    # end
-    # describe "#multiply_els" do
-    #     it "" do
-        
-    #     end
-    # end
 
 
 
