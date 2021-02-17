@@ -130,6 +130,15 @@ module Enumerable
         return my_none_boolean
       end
 
+      if args.first.instance_of?(Class)
+      my_none_boolean = true
+      each do |i|
+        my_none_boolean = false if i.is_a?(args.first)
+      end
+      return my_none_boolean
+
+      end
+
       my_none_boolean = true
       each do |i|
         my_none_boolean = false if i == args.first
@@ -138,6 +147,7 @@ module Enumerable
     end
 
     unless block_given?
+      
       my_none_boolean = true
       each do |i|
         my_none_boolean = false if i
@@ -145,9 +155,11 @@ module Enumerable
       return my_none_boolean
     end
 
+
     if args.length == 1
       my_none_boolean = true
       each do |i|
+        puts i.is_a?(args.first)
         my_none_boolean = false if i.is_a?(args.first)
       end
       return my_none_boolean
