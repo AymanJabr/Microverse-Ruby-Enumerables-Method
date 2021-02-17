@@ -131,11 +131,11 @@ module Enumerable
       end
 
       if args.first.instance_of?(Class)
-      my_none_boolean = true
-      each do |i|
-        my_none_boolean = false if i.is_a?(args.first)
-      end
-      return my_none_boolean
+        my_none_boolean = true
+        each do |i|
+          my_none_boolean = false if i.is_a?(args.first)
+        end
+        return my_none_boolean
 
       end
 
@@ -147,14 +147,13 @@ module Enumerable
     end
 
     unless block_given?
-      
+
       my_none_boolean = true
       each do |i|
         my_none_boolean = false if i
       end
       return my_none_boolean
     end
-
 
     if args.length == 1
       my_none_boolean = true
