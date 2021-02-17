@@ -18,6 +18,14 @@ In this project I re-made some of the most used Ruby Enumerable classes:
 
 Ruby
 
+## Prequisites
+
+Ruby installed on your local machine.
+Terminal or similar to execute the program.
+
+## Testing
+In this project the testing was done using RSpec to test all game logic methods.
+
 ## Installation
 
 1. Install Ruby on your machine
@@ -85,6 +93,11 @@ Returns the sum of all the elements according to the query
 This method uses my_map to multiply the elements of an array with a sum
 
 ## Author 👤
+
+### Gregorio Rábago Sainz (RSpec Testing part)
+
+- GitHub: [@Greg0109](https://github.com/greg0109)
+- Twitter: [@Greg_0109](https://twitter.com/greg_0109)
 
 ### Ayman Jabr
 
